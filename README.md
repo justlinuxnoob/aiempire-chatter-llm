@@ -64,6 +64,22 @@ Both use `Authorization: Bearer <RUNPOD_API_KEY>`. Always send
 `"chat_template_kwargs": {"enable_thinking": false}`, otherwise Qwen "thinks"
 before every reply (slower and more expensive).
 
+## Test results (7 Oct 2026, endpoint `anupss918yyguy`)
+
+| Test | Result | Time |
+|---|---|---|
+| Background job (`/run`) | 3/3 | cold start 305 s, then 3.5–4 s |
+| Hello (OpenAI route) | 3/3 | 1.1–1.3 s |
+| Tools (profile → catalog → send_ppv) | 3/3, 0 broken tool calls | 6–8 s per full sale |
+| Vision (describe a photo) | 3/3 | 1.4–1.7 s |
+
+Notes for the app (step 2):
+- In 1 of 9 tool turns she answered in plain text instead of calling a tool.
+  The app should send `tool_choice: "required"` (or treat plain text as a reply).
+- Unprompted she said "I'm even cuter in real life", so the persona prompt
+  must cover the honesty rule; the model won't do it by default.
+- Vision works, so step 4 can describe vault images with this same endpoint.
+
 ## Switching model
 
 Edit `MODEL_NAME` (and `TOOL_CALL_PARSER` if the family changes) in

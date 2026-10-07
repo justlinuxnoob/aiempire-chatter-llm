@@ -1,0 +1,44 @@
+{
+  "title": "AI Empire · Chatter Brain (uncensored LLM, tool calling)",
+  "description": "The chat brain for the AI Empire Fanvue chatter: Qwen3.6-27B (uncensored, 4-bit) on vLLM with tool calling, OpenAI-compatible. Scales to zero. Pair it with the aiempire-chatter Cloudflare Worker and your Krea 2 image endpoints.",
+  "type": "serverless",
+  "category": "language",
+  "config": {
+    "runsOn": "GPU",
+    "containerDiskInGb": 60,
+    "gpuIds": "ADA_48_PRO,AMPERE_48",
+    "gpuCount": 1,
+    "allowedCudaVersions": ["13.0", "13.1", "13.2"],
+    "env": [
+      {
+        "key": "MODEL_NAME",
+        "input": {
+          "name": "Model",
+          "type": "huggingface",
+          "description": "Hugging Face model. Leave as is unless you know you want another one.",
+          "default": "shawnw3i/Huihui-Qwen3.6-27B-abliterated-AWQ-MTP",
+          "advanced": true
+        }
+      },
+      {
+        "key": "MAX_MODEL_LEN",
+        "input": {
+          "name": "Max context length",
+          "type": "number",
+          "description": "How much chat history fits in one request (tokens).",
+          "default": 32768,
+          "min": 4096,
+          "max": 65536,
+          "advanced": true
+        }
+      },
+      { "key": "ENABLE_AUTO_TOOL_CHOICE", "value": "true" },
+      { "key": "TOOL_CALL_PARSER", "value": "qwen3_coder" },
+      { "key": "REASONING_PARSER", "value": "qwen3" },
+      { "key": "ENABLE_PREFIX_CACHING", "value": "true" },
+      { "key": "GPU_MEMORY_UTILIZATION", "value": "0.92" },
+      { "key": "MAX_NUM_SEQS", "value": "16" },
+      { "key": "OPENAI_SERVED_MODEL_NAME_OVERRIDE", "value": "chatter" }
+    ]
+  }
+}

@@ -25,7 +25,26 @@ Because the model is uncensored, it never refuses anything by itself. Every
 safety rule (age checks, image-prompt blocklist, "are you real?") lives in the
 app's code, not in the model.
 
-## Setup
+## Listing on RunPod Hub (for members)
+
+The repo has what RunPod Hub needs: `Dockerfile` (stock vLLM worker + these settings as
+defaults), `handler.py` (placeholder: the stock worker's own handler runs), `.runpod/hub.json`
+and `.runpod/tests.json`. The repo must be public, then create a GitHub release: the Hub
+builds and lists it, usually within an hour. Members then deploy it with one click; no
+settings to fill in.
+
+The three endpoints of a member's chatter:
+
+| Endpoint | Repo | Used for |
+|---|---|---|
+| Chat brain | this repo | every reply, catalog descriptions |
+| SFW images | justlinuxnoob/ai-empire-telegram-bot | free teasers she takes on demand |
+| NSFW images | justlinuxnoob/krea2-nsfw-serverless | paid (locked) photos she takes on demand |
+
+The chatter calls the image endpoints directly (no Telegram token in the job, so the photo
+comes back as base64).
+
+## Setup (your own account, via the API)
 
 1. Put your RunPod API key in `.env` (RunPod console → Settings → API Keys).
    `.env` is never committed.

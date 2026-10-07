@@ -1,0 +1,37 @@
+{
+  "tests": [
+    {
+      "name": "tool_call",
+      "input": {
+        "openai_route": "/v1/chat/completions",
+        "openai_input": {
+          "model": "chatter",
+          "messages": [
+            { "role": "system", "content": "You are Luna, 24, texting a fan. Always answer with the reply tool." },
+            { "role": "user", "content": "hey u up?" }
+          ],
+          "tools": [
+            {
+              "type": "function",
+              "function": {
+                "name": "reply",
+                "description": "Text him.",
+                "parameters": { "type": "object", "properties": { "messages": { "type": "array", "items": { "type": "string" } } }, "required": ["messages"] }
+              }
+            }
+          ],
+          "tool_choice": "required",
+          "max_tokens": 120,
+          "chat_template_kwargs": { "enable_thinking": false }
+        }
+      },
+      "timeout": 1200000
+    }
+  ],
+  "config": {
+    "gpuTypeId": "NVIDIA L40S",
+    "gpuCount": 1,
+    "env": [{ "key": "MAX_MODEL_LEN", "value": "8192" }],
+    "allowedCudaVersions": ["13.0", "13.1", "13.2"]
+  }
+}

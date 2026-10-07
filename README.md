@@ -25,7 +25,33 @@ Because the model is uncensored, it never refuses anything by itself. Every
 safety rule (age checks, image-prompt blocklist, "are you real?") lives in the
 app's code, not in the model.
 
-## Listing on RunPod Hub (for members)
+## Deploy it (for members)
+
+**Option A: from GitHub** (RunPod builds it). RunPod → Serverless → New Endpoint →
+GitHub repo → `justlinuxnoob/aiempire-chatter-llm`. No settings needed: the Dockerfile has them.
+
+**Option B: from Docker Hub** (fastest, nothing to build). RunPod → Serverless → New Endpoint →
+Docker image `runpod/worker-v1-vllm:v2.28.0`, then add these environment variables:
+
+| Variable | Value |
+|---|---|
+| `MODEL_NAME` | `shawnw3i/Huihui-Qwen3.6-27B-abliterated-AWQ-MTP` |
+| `MAX_MODEL_LEN` | `32768` |
+| `GPU_MEMORY_UTILIZATION` | `0.92` |
+| `ENABLE_AUTO_TOOL_CHOICE` | `true` |
+| `TOOL_CALL_PARSER` | `qwen3_coder` |
+| `REASONING_PARSER` | `qwen3` |
+| `ENABLE_PREFIX_CACHING` | `true` |
+| `MAX_NUM_SEQS` | `16` |
+| `OPENAI_SERVED_MODEL_NAME_OVERRIDE` | `chatter` |
+
+Either way: **48 GB GPU** (L40S, RTX 6000 Ada, L40, A6000, A40), **max workers 1**,
+**idle timeout 120 s**, **FlashBoot on**, **container disk 60 GB**, CUDA 13.0 or newer.
+Copy the endpoint ID into the chatter's `/setup`.
+
+New to RunPod? [Sign up here](https://runpod.io?ref=9s65jq8z).
+
+## Listing on RunPod Hub
 
 The repo has what RunPod Hub needs: `Dockerfile` (stock vLLM worker + these settings as
 defaults), `handler.py` (placeholder: the stock worker's own handler runs), `.runpod/hub.json`
@@ -112,6 +138,3 @@ Check that the new tag exists on Docker Hub (`runpod/worker-v1-vllm`) before
 changing `IMAGE` in `scripts/create_endpoint.py`: GitHub releases sometimes
 appear before the image does.
 
-## For Premium members
-
-New to RunPod? Sign up with this referral link: https://runpod.io?ref=9s65jq8z

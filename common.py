@@ -61,8 +61,24 @@ def api_key() -> str:
     return key
 
 
-def endpoint_id() -> str:
+def looks_like_api_key(value: str) -> bool:
+    # Endpoint IDs are short (~14 chars); API keys are long and start with rpa_.
+    return value.startswith("rpa_") or len(value) > 30
+
+
+def saved_endpoint_id() -> str:
+    """The endpoint ID from .env, or "" — refuses (without echoing it) if it's really a key."""
     eid = read_env_file(ENV_FILE).get("RUNPOD_ENDPOINT_ID", "")
+    if eid and looks_like_api_key(eid):
+        fail(
+            "The RUNPOD_ENDPOINT_ID line in .env holds what looks like an API key. "
+            "Move it to the RUNPOD_API_KEY line and leave RUNPOD_ENDPOINT_ID empty."
+        )
+    return eid
+
+
+def endpoint_id() -> str:
+    eid = saved_endpoint_id()
     if not eid:
         fail("No endpoint yet. Run: python3 scripts/create_endpoint.py")
     return eid

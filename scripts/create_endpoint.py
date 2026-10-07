@@ -14,7 +14,7 @@ from pathlib import Path
 import requests
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
-from common import ENDPOINT_ENV_FILE, ENV_FILE, REST_API, fail, headers, read_env_file, set_env_value  # noqa: E402
+from common import ENDPOINT_ENV_FILE, ENV_FILE, REST_API, fail, headers, read_env_file, saved_endpoint_id, set_env_value  # noqa: E402
 
 NAME = "aiempire-chatter-llm"
 # v2.29.0 is on GitHub but was not on Docker Hub when this was set up (Oct 2026).
@@ -91,8 +91,9 @@ def main() -> None:
         print("\n✓ Updated. New workers pick up the new settings; a running worker keeps the old ones until it scales down.")
         return
 
-    if local.get("RUNPOD_ENDPOINT_ID"):
-        fail(f"An endpoint already exists ({local['RUNPOD_ENDPOINT_ID']}). Use --update to change its settings.")
+    existing = saved_endpoint_id()
+    if existing:
+        fail(f"An endpoint already exists ({existing}). Use --update to change its settings.")
 
     show_plan(env)
     if "--yes" not in args:

@@ -1,0 +1,39 @@
+name: Publish image
+
+# ghcr.io/<owner>/aiempire-chatter-llm:latest = RunPod's stock vLLM worker (FROM in the Dockerfile)
+# with the chatter's settings (ENV in the Dockerfile) baked in, so a RunPod endpoint needs
+# nothing but the image name. Done with `crane mutate`: only the image config changes, the
+# ~9 GB of layers are copied as-is (nothing is built).
+
+on:
+  push:
+    branches: [main]
+    paths: [Dockerfile, .github/workflows/image.yml]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  packages: write
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install crane
+        run: |
+          curl -sL https://github.com/google/go-containerregistry/releases/download/v0.20.2/go-containerregistry_Linux_x86_64.tar.gz | tar xz crane
+          sudo mv crane /usr/local/bin/
+          echo "${{ secrets.GITHUB_TOKEN }}" | crane auth login ghcr.io -u "${{ github.actor }}" --password-stdin
+      - name: Stock worker + the chatter's settings
+        run: |
+          BASE=$(grep -m1 '^FROM ' Dockerfile | awk '{print $2}')
+          ENVS=$(sed -n '/^ENV /,/[^\\]$/p' Dockerfile | grep -oE '[A-Z_]+=[^ \\]+' | sed 's/^/--env /' | tr '\n' ' ')
+          echo "base: $BASE"; echo "env: $ENVS"
+          IMG=ghcr.io/${{ github.repository_owner }}/aiempire-chatter-llm
+          crane mutate "$BASE" $ENVS \
+            --label org.opencontainers.image.source=https://github.com/${{ github.repository }} \
+            --label org.opencontainers.image.description="AI Empire chatter brain: RunPod vLLM worker + Qwen3.6-27B abliterated AWQ settings" \
+            -t "$IMG:latest"
+          crane tag "$IMG:latest" "${BASE##*:}"
+          crane config "$IMG:latest" | python3 -c "import json,sys; print('\n'.join(json.load(sys.stdin)['config']['Env']))"

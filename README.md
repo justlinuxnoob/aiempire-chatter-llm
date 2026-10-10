@@ -129,6 +129,10 @@ before every reply (slower and more expensive).
 | Tools (profile → catalog → send_ppv) | 3/3, 0 broken tool calls | 6–8 s per full sale |
 | Vision (describe a photo) | 3/3 | 1.4–1.7 s |
 
+Ready image `ghcr.io/justlinuxnoob/aiempire-chatter-llm:v2.28.0` with no settings (11 Oct 2026,
+fresh endpoint): cold start 274 s, then 12/12 checks passed (hello 1.2–1.3 s, tools 6–8 s, 0 broken
+tool calls, vision 1.5–1.7 s).
+
 Notes for the app (step 2):
 - In 1 of 9 tool turns she answered in plain text instead of calling a tool.
   The app should send `tool_choice: "required"` (or treat plain text as a reply).

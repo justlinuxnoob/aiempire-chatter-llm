@@ -27,11 +27,21 @@ app's code, not in the model.
 
 ## Deploy it (for members)
 
-**Option A: from GitHub** (RunPod builds it). RunPod → Serverless → New Endpoint →
-GitHub repo → `justlinuxnoob/aiempire-chatter-llm`. No settings needed: the Dockerfile has them.
+RunPod → **Serverless → New Endpoint → Import from Docker Registry** →
 
-**Option B: from Docker Hub** (fastest, nothing to build). RunPod → Serverless → New Endpoint →
-Docker image `runpod/worker-v1-vllm:v2.28.0`, then add these environment variables:
+```
+ghcr.io/justlinuxnoob/aiempire-chatter-llm:v2.28.0
+```
+
+That image is RunPod's stock vLLM worker with every setting below already built in, so
+there are **no environment variables to fill in**. Endpoint settings: **48 GB GPU** (L40S,
+RTX 6000 Ada, L40, A6000, A40), **active workers 0**, **max workers 1**, **idle timeout 120 s**,
+**FlashBoot on**, **container disk 60 GB**, CUDA 13.0 or newer. Copy the endpoint ID into the
+chatter's `/setup`.
+
+<details><summary>Same thing by hand (stock image + environment variables)</summary>
+
+Docker image `runpod/worker-v1-vllm:v2.28.0` with:
 
 | Variable | Value |
 |---|---|
@@ -45,9 +55,10 @@ Docker image `runpod/worker-v1-vllm:v2.28.0`, then add these environment variabl
 | `MAX_NUM_SEQS` | `16` |
 | `OPENAI_SERVED_MODEL_NAME_OVERRIDE` | `chatter` |
 
-Either way: **48 GB GPU** (L40S, RTX 6000 Ada, L40, A6000, A40), **max workers 1**,
-**idle timeout 120 s**, **FlashBoot on**, **container disk 60 GB**, CUDA 13.0 or newer.
-Copy the endpoint ID into the chatter's `/setup`.
+</details>
+
+The ready image is published by `.github/workflows/image.yml` (`crane mutate`: the stock
+worker + the `ENV` lines of the `Dockerfile`, nothing rebuilt) on every change to the Dockerfile.
 
 New to RunPod? [Sign up here](https://runpod.io?ref=9s65jq8z).
 
